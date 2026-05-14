@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URANIUMV3</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="loader"></div>
+        <p class="futuristic-text">URANIUMV3 INITIALIZING</p>
+        <p class="sub-text">ESTABLISHING SCRAMJET LINK</p>
+    </div>
+
+    <div id="main-ui" class="hidden">
+        <div id="top-bar">
+            <span class="brand-tag">URANIUMV3</span>
+            <div class="nav-controls">
+                <button id="refresh-btn" class="nav-btn">REFRESH</button>
+                <button id="fullscreen-btn" class="nav-btn">FULLSCREEN</button>
+            </div>
+        </div>
+
+        <div id="welcome-container">
+            <h1 class="welcome-title">URANIUMV3</h1>
+            <div class="search-box">
+                <input type="text" id="url-input" placeholder="ENTER URL OR SEARCH QUERY">
+                <button id="go-btn">EXECUTE</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="proxy-container" class="hidden">
+        <iframe id="proxy-frame" src=""></iframe>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
