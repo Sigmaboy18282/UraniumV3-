@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const refreshBtn = document.getElementById('refresh-btn');
     const fullscreenBtn = document.getElementById('fullscreen-btn');
 
-    // 5 Second Synthetic Loading Delay
+    // 5 Second Loading Sequence
     setTimeout(() => {
         loader.style.opacity = '0';
         setTimeout(() => {
@@ -18,46 +18,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     }, 5000);
 
-    const processURL = (input) => {
-        input = input.trim();
-        if (!input) return null;
-
-        // Check if it's a URL, otherwise use DuckDuckGo Dark Mode
-        if (input.includes('.') && !input.includes(' ')) {
-            return input.startsWith('http') ? input : `https://${input}`;
-        } else {
-            // kae=d triggers Dark Mode in DDG
-            return `https://duckduckgo.com/?q=${encodeURIComponent(input)}&kae=d`;
-        }
-    };
-
     const launch = () => {
-        const target = processURL(urlInput.value);
-        if (target) {
-            // Scramjet routing logic
-            // Requires your setup to have __scramjet$config available
-            const proxiedUrl = window.__scramjet$config.prefix + window.__scramjet$config.encodeUrl(target);
+        let input = urlInput.value.trim();
+        if (!input) return;
+
+        let targetUrl;
+        if (input.includes('.') && !input.includes(' ')) {
+            targetUrl = input.startsWith('http') ? input : `https://${input}`;
+        } else {
+            // DuckDuckGo Dark Mode (kae=d)
+            targetUrl = `https://duckduckgo.com/?q=${encodeURIComponent(input)}&kae=d`;
+        }
+
+        // SCRAMJET INTEGRATION FIX
+        // We check if the Scramjet config exists; if not, we use a relative path
+        try {
+            const prefix = window.__scramjet$config?.prefix || '/service/';
+            const encoded = window.__scramjet$config?.encodeUrl ? window.__scramjet$config.encodeUrl(targetUrl) : btoa(targetUrl);
             
-            proxyFrame.src = proxiedUrl;
+            proxyFrame.src = prefix + encoded;
+            
+            welcome.classList.add('hidden');
+            proxyContainer.classList.remove('hidden');
+        } catch (err) {
+            console.error("URANIUMV3 EXECUTION ERROR:", err);
+            // Emergency fallback to direct load if proxy fails
+            proxyFrame.src = targetUrl;
             welcome.classList.add('hidden');
             proxyContainer.classList.remove('hidden');
         }
     };
 
-    goBtn.addEventListener('click', launch);
-    urlInput.addEventListener('keypress', (e) => {
+    // Event Listeners - Re-verified
+    goBtn.onclick = () => launch();
+    
+    urlInput.onkeydown = (e) => {
         if (e.key === 'Enter') launch();
-    });
+    };
 
-    refreshBtn.addEventListener('click', () => {
-        proxyFrame.contentWindow.location.reload();
-    });
-
-    fullscreenBtn.addEventListener('click', () => {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-        } else {
-            if (document.exitFullscreen) document.exitFullscreen();
+    refreshBtn.onclick = () => {
+        if (proxyFrame.src) {
+            proxyFrame.contentWindow.location.reload();
         }
-    });
+    };
+
+    fullscreenBtn.onclick = () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    };
 });
